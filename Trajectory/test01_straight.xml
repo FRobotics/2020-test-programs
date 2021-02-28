@@ -1,12 +1,12 @@
 <?xml version='1.0' standalone='yes' ?>
 <LVData xmlns="http://www.ni.com/LVData">
-<Version>19.0f2</Version>
+<Version>19.0.1f3</Version>
 <Cluster>
 <Name>TrajCreateConfig</Name>
 <NumElts>7</NumElts>
 <Path>
 <Name>Write Config File Name</Name>
-<Val>C:\Users\Administrator\Documents\2021\Trajectory\test01_straight.xml</Val>
+<Val>C:\Shares\github\Frobotics-test-programs-2020\Trajectory\test01_straight.xml</Val>
 </Path>
 <String>
 <Name>Write Config File Comment</Name>
