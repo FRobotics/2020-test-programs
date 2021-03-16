@@ -427,10 +427,6 @@
 				<Item Name="DS proto.ctl" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/Simulation/Protocol/Typedefs/DS proto.ctl"/>
 				<Item Name="Make DS JSON.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/Simulation/Protocol/Make DS JSON.vi"/>
 				<Item Name="VISA TCP.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/Sockets/VISA TCP Socket/VISA TCP.lvclass"/>
-				<Item Name="WebSocket.ctl" Type="VI" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/WebSockets/WebSocket/WebSocket.lvclass/WebSocket.ctl"/>
-				<Item Name="VISA TCP.ctl" Type="VI" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/Sockets/VISA TCP Socket/VISA TCP.lvclass/VISA TCP.ctl"/>
-				<Item Name="Read TCP Refnum.vi" Type="VI" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/Sockets/VISA TCP Socket/Read TCP Refnum.vi"/>
-				<Item Name="Read Socket.vi" Type="VI" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/WebSockets/WebSocket/Read Socket.vi"/>
 				<Item Name="WebSocket Client.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/WebSockets/WebSocket Client/WebSocket Client.lvclass"/>
 				<Item Name="RoboRIO data proto.ctl" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/Simulation/Protocol/Typedefs/RoboRIO data proto.ctl"/>
 				<Item Name="RoboRIO proto.ctl" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/Simulation/Protocol/Typedefs/RoboRIO proto.ctl"/>
@@ -445,11 +441,13 @@
 				<Item Name="Relay data proto.ctl" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/Simulation/Protocol/Typedefs/Relay data proto.ctl"/>
 				<Item Name="Relay proto.ctl" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/Simulation/Protocol/Typedefs/Relay proto.ctl"/>
 				<Item Name="Make Relay JSON.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/Simulation/Protocol/Make Relay JSON.vi"/>
-				<Item Name="New Client.vi" Type="VI" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/WebSockets/WebSocket Client/New Client.vi"/>
 				<Item Name="Socket.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/Sockets/Socket/Socket.lvclass"/>
-				<Item Name="New Server from Socket.vi" Type="VI" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/WebSockets/WebSocket Server/New Server from Socket.vi"/>
-				<Item Name="New TCP Socket from Refnum.vi" Type="VI" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/Sockets/VISA TCP Socket/New TCP Socket from Refnum.vi"/>
 				<Item Name="WebSocket Server.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/MediaMongrels Ltd/WebSockets/WebSockets/WebSocket Server/WebSocket Server.lvclass"/>
+				<Item Name="Join Strings.vi" Type="VI" URL="/&lt;vilib&gt;/AdvancedString/Join Strings.vi"/>
+				<Item Name="CTRE_Phoenix_MotorControl_ConfigNominalOutput.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/ThirdParty/Phoenix-LabVIEW/Motor Controller/Output Config/CTRE_Phoenix_MotorControl_ConfigNominalOutput.vi"/>
+				<Item Name="CTRE_Phoenix_MotorControl_ConfigOpenLoopRamp.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/ThirdParty/Phoenix-LabVIEW/Motor Controller/Output Config/CTRE_Phoenix_MotorControl_ConfigOpenLoopRamp.vi"/>
+				<Item Name="CTRE_Phoenix_MotorControl_ConfigClosedLoopRamp.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/ThirdParty/Phoenix-LabVIEW/Motor Controller/Output Config/CTRE_Phoenix_MotorControl_ConfigClosedLoopRamp.vi"/>
+				<Item Name="CTRE_Phoenix_MotorControl_ConfigNeutralDeadband.vi" Type="VI" URL="/&lt;vilib&gt;/Rock Robotics/WPI/ThirdParty/Phoenix-LabVIEW/Motor Controller/Output Config/CTRE_Phoenix_MotorControl_ConfigNeutralDeadband.vi"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="DC Motor Controller.lvclass" Type="LVClass" URL="/&lt;instrlib&gt;/DC Motor Controller/HAIOL/DC Motor Controller.lvclass"/>
