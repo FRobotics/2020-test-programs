@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+//import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.subsystem.StandardDriveTrain;
 import frc.robot.base.util.DriveUtil;
@@ -80,6 +81,8 @@ public class DriveTrain extends StandardDriveTrain {
     public void acquire() {
         // --------read gyro
         sensorGyroAngle = gyro.getAngle();
+        // --------read sensors from base class.
+        super.acquire();
     }
 
     @Override

@@ -104,6 +104,31 @@ public class StandardDriveTrain extends Subsystem {
         return Math.max(Math.min(percent, 1), -1);
     }
 
+    private double sensorRightDistanceFt = 0.0d;
+    private double sensorRightVelocityFps = 0.0d;
+    private double sensorRightVelocityRaw = 0.0d;
+    private double sensorRightOutputPct = 0.0d;
+    private double sensorLeftDistanceFt = 0.0d;
+    private double sensorLeftVelocityFps = 0.0d;
+    private double sensorLeftVelocityRaw = 0.0d;
+    private double sensorLeftOutputPct = 0.0d;
+
+
+    @Override
+    public void acquire() {
+        // --------read right drive motor
+        sensorRightDistanceFt = rightMotor.getDistance();
+        sensorRightVelocityFps = rightMotor.getVelocity();
+        sensorRightVelocityRaw = rightMotor.getVelocityRaw();
+        sensorRightOutputPct = rightMotor.getOutputPercent();
+        // --------read left drive motor
+        sensorLeftDistanceFt = leftMotor.getDistance();
+        sensorLeftVelocityFps = leftMotor.getVelocity();
+        sensorLeftVelocityRaw = leftMotor.getVelocityRaw();
+        sensorLeftOutputPct = leftMotor.getOutputPercent();
+    }
+
+
     @Override
     public void stop() {
         setPercentOutput(0);
@@ -111,22 +136,23 @@ public class StandardDriveTrain extends Subsystem {
         this.rightMotor.resetDistance();
     }
 
+    //JAS made changes to not talk with hardware.
     @Override
     public Map<String, Supplier<Object>> NTSets() {
         return Map.ofEntries(
-                Map.entry("left/velocity", leftMotor::getVelocity),
-                Map.entry("left/distance", leftMotor::getDistance),
+                Map.entry("left/velocity", this::getLeftVelocity), //leftMotor::getVelocity),
+                Map.entry("left/distance", this::getLeftDistance), //leftMotor::getDistance),
                 Map.entry("left/demand", () -> leftDemand),
                 Map.entry("left/demandRaw", () -> leftOutputRaw),
-                Map.entry("left/received/velocity", leftMotor::getVelocityRaw),
-                Map.entry("left/received/outputPercent", leftMotor::getOutputPercent),
+                Map.entry("left/received/velocity", this::getLeftVelocityRaw), //leftMotor::getVelocityRaw),
+                Map.entry("left/received/outputPercent", this::getLeftOutputPct), //eftMotor::getOutputPercent),
 
-                Map.entry("right/velocity", rightMotor::getVelocity),
-                Map.entry("right/distance", rightMotor::getDistance),
+                Map.entry("right/velocity", this::getRightVelocity), //rightMotor::getVelocity),
+                Map.entry("right/distance", this::getRightDistance), //rightMotor::getDistance),
                 Map.entry("right/demand", () -> rightDemand),
                 Map.entry("right/demandRaw", () -> rightOutputRaw),
-                Map.entry("right/received/velocity", rightMotor::getVelocityRaw),
-                Map.entry("right/received/outputPercent", rightMotor::getOutputPercent),
+                Map.entry("right/received/velocity", this::getRightVelocityRaw), //rightMotor::getVelocityRaw),
+                Map.entry("right/received/outputPercent", this::getRightOutputPct), //rightMotor::getOutputPercent),
 
                 Map.entry("closedLoopControl", () -> useClosedLoop)
         );
@@ -161,29 +187,61 @@ public class StandardDriveTrain extends Subsystem {
     }
 
     public double getLeftVelocity() {
-        return this.leftMotor.getVelocity();
+        //JAS
+        //return this.leftMotor.getVelocity();
+        return sensorLeftVelocityFps;
     }
 
     public double getRightVelocity() {
-        return this.leftMotor.getVelocity();
+        //JAS
+        //return this.leftMotor.getVelocity();
+        return sensorRightVelocityFps;
     }
 
     public double getAverageVelocity() {
-        return (this.leftMotor.getVelocity() + this.rightMotor.getVelocity()) / 2;
+        //JAS
+        //return (this.leftMotor.getVelocity() + this.rightMotor.getVelocity()) / 2;
+        return ( getLeftVelocity() + getRightVelocity() ) * 0.5d ;
     }
     
     public double getLeftDistance() {
-        return leftMotor.getDistance();
+        //JAS
+        //return leftMotor.getDistance();
+        return sensorLeftDistanceFt;
     }
     
     public double getRightDistance() {
-        return rightMotor.getDistance();
+        //JAS
+        //return rightMotor.getDistance();
+        return sensorRightDistanceFt;
     }
 
     public double getAverageDistance() {
-        return (leftMotor.getDistance() + rightMotor.getDistance()) / 2;
+        //JAS
+        //return (leftMotor.getDistance() + rightMotor.getDistance()) / 2;
+        return ( getRightDistance() + getLeftDistance() ) * 0.5d;
     }
 
+    //JAS added
+    public double getLeftOutputPct() {
+        return sensorLeftOutputPct;
+    }
+
+    //JAS added
+    public double getRightOutputPct() {
+        return sensorRightOutputPct;
+    }
+
+    //JAS ADDED
+    public double getLeftVelocityRaw() {
+        return sensorLeftVelocityRaw;
+    }
+
+    //JAS ADDED
+    public double getRightVelocityRaw() {
+        return sensorRightVelocityRaw;
+    }
+    
     public double getAbsoluteMaxSpeed() {
         return this.absoluteMaxSpeed;
     }

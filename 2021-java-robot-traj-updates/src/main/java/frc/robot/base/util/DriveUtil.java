@@ -3,7 +3,9 @@ package frc.robot.base.util;
 import frc.robot.base.input.Axis;
 import frc.robot.base.input.Controller;
 import frc.robot.base.subsystem.StandardDriveTrain;
-import edu.wpi.first.hal.HAL;
+import edu.wpi.first.networktables.NetworkTableEntry;
+//import edu.wpi.first.hal.HAL;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -26,6 +28,8 @@ public class DriveUtil {
     private static double controllerDeadBand = 0.2;
     private static int controllerPower = 2;
 
+    //=============================================================================================================
+    // -------- logic for standard teleop drive.
     public static void standardDrive(StandardDriveTrain driveTrain, Controller controller, boolean reverse) {
         int r = reverse ? -1 : 1;
         double fb = -r * Util.adjustInput(controller.getAxis(Controls.DriveTrain.DRIVE_FORWARD_BACKWARD),
@@ -75,6 +79,32 @@ public class DriveUtil {
 
     private static DriveTrain trajDriveTrain;
 
+    //JAS added local storage to eliminate repeated lookups...
+    private static NetworkTableEntry nte_trajAngleDelta; 
+    private static NetworkTableEntry nte_trajLeftDistance;
+    private static NetworkTableEntry nte_trajRightDistance;
+    private static NetworkTableEntry nte_trajSampTime;
+
+    private static NetworkTableEntry nte_trajOnTarget;
+    private static NetworkTableEntry nte_trajXErrorFt;
+    private static NetworkTableEntry nte_trajYErrorFt;
+    private static NetworkTableEntry nte_trajGyroErrorDeg;
+
+    private static NetworkTableEntry nte_trajRobotPosX;
+    private static NetworkTableEntry nte_trajRobotPosY;
+    private static NetworkTableEntry nte_trajRobotAngle;
+
+    private static NetworkTableEntry nte_trajDesiredPosX;
+    private static NetworkTableEntry nte_trajDesiredPosY;
+    private static NetworkTableEntry nte_trajDesiredAngle;
+
+    private static NetworkTableEntry nte_trajTotalTime;
+    private static NetworkTableEntry nte_trajCurrentTime;
+
+
+
+    //=============================================================================================================
+    // -------- follow a path.  call every 20 ms until path is complete or driver wants to stop.
     public static void followPath() {
 
         //--------read sensor information
@@ -114,40 +144,44 @@ public class DriveUtil {
         trajOnTarget = trajRamsete.atReference();
 
         //JAS added
-        NTHandler.getRobotEntry("trajAngleDelta").setDouble(angleDelta);
-        NTHandler.getRobotEntry("trajLeftDistance").setDouble(leftDist);
-        NTHandler.getRobotEntry("trajRightDistance").setDouble(rightDist);
-        NTHandler.getRobotEntry("trajSampTime").setDouble(sampTime);
-        NTHandler.getRobotEntry("trajOnTarget").setBoolean(trajOnTarget);
+        nte_trajAngleDelta.setDouble(angleDelta);
+        nte_trajLeftDistance.setDouble(leftDist);
+        nte_trajRightDistance.setDouble(rightDist);
+        nte_trajSampTime.setDouble(sampTime);
 
+        nte_trajOnTarget.setBoolean(trajOnTarget);
+        nte_trajXErrorFt.setDouble(trajXErrorFt);
+        nte_trajYErrorFt.setDouble(trajYErrorFt);
+        nte_trajGyroErrorDeg.setDouble(trajGyroErrorDeg);
 
-        NTHandler.getRobotEntry("trajXErrorFt").setDouble(trajXErrorFt);
-        NTHandler.getRobotEntry("trajYErrorFt").setDouble(trajYErrorFt);
-        NTHandler.getRobotEntry("trajGyroErrorDeg").setDouble(trajGyroErrorDeg);
+        nte_trajRobotPosX.setDouble(Units.metersToFeet(trajCurrentPosition.getX()));
+        nte_trajRobotPosY.setDouble(Units.metersToFeet(trajCurrentPosition.getY()));
+        nte_trajRobotAngle.setDouble(trajCurrentPosition.getRotation().getDegrees());
 
-        NTHandler.getRobotEntry("trajRobotPosX").setDouble(Units.metersToFeet(trajCurrentPosition.getX()));
-        NTHandler.getRobotEntry("trajRobotPosY").setDouble(Units.metersToFeet(trajCurrentPosition.getY()));
-        NTHandler.getRobotEntry("trajRobotAngle").setDouble(trajCurrentPosition.getRotation().getDegrees());
-
-        NTHandler.getRobotEntry("trajDesiredPosX").setDouble(Units.metersToFeet(currentState.poseMeters.getX()));
-        NTHandler.getRobotEntry("trajDesiredPosY").setDouble(Units.metersToFeet(currentState.poseMeters.getY()));
-        NTHandler.getRobotEntry("trajDesiredAngle").setDouble(currentState.poseMeters.getRotation().getDegrees());
+        nte_trajDesiredPosX.setDouble(Units.metersToFeet(currentState.poseMeters.getX()));
+        nte_trajDesiredPosY.setDouble(Units.metersToFeet(currentState.poseMeters.getY()));
+        nte_trajDesiredAngle.setDouble(currentState.poseMeters.getRotation().getDegrees());
     }
 
+    //=============================================================================================================
+    // -------- See if path is complete.
     public static boolean finishedPath() {
 
         double currentTimeSec = (double)( System.currentTimeMillis() - pathStartTime ) * 0.001d;
         boolean trajOnTime = currentTimeSec >= trajectory.getTotalTimeSeconds();
         boolean trajOutTime = currentTimeSec >= (trajectory.getTotalTimeSeconds() + 10.d);
-        NTHandler.getRobotEntry("trajTotalTime").setDouble(trajectory.getTotalTimeSeconds());
-        NTHandler.getRobotEntry("trajCurrentTime").setDouble(currentTimeSec);
+
+        nte_trajTotalTime.setDouble(trajectory.getTotalTimeSeconds());
+        nte_trajCurrentTime.setDouble(currentTimeSec);
 
         return (trajOnTime && trajOnTarget) || trajOutTime;
     }
 
     private static final double trackWidth = 24.d;
 
-    //public static void startTrajectory(Trajectory t, double gyroAngle, double left, double right) {
+    //=============================================================================================================
+    // -------- Initialize to start trajectory.
+        //public static void startTrajectory(Trajectory t, double gyroAngle, double left, double right) {
     public static void startTrajectory(Trajectory t, DriveTrain myDriveTrain ) {
 
         trajDriveTrain = myDriveTrain;
@@ -164,11 +198,41 @@ public class DriveUtil {
         trajectory = t;
         pathStartTime = System.currentTimeMillis();
 
+        //JAS added save entry variable so repeated string lookup not required...
+        nte_trajAngleDelta = NTHandler.getRobotEntry("traj/trajAngleDelta");
+        nte_trajLeftDistance = NTHandler.getRobotEntry("traj/trajLeftDistance");
+        nte_trajRightDistance = NTHandler.getRobotEntry("traj/trajRightDistance");
+        nte_trajSampTime = NTHandler.getRobotEntry("traj/trajSampTime");
+
+        nte_trajOnTarget = NTHandler.getRobotEntry("traj/trajOnTarget");
+        nte_trajXErrorFt = NTHandler.getRobotEntry("traj/trajXErrorFt");
+        nte_trajYErrorFt = NTHandler.getRobotEntry("traj/trajYErrorFt");
+        nte_trajGyroErrorDeg = NTHandler.getRobotEntry("traj/trajGyroErrorDeg");
+
+        nte_trajRobotPosX = NTHandler.getRobotEntry("traj/trajRobotPosX"); 
+        nte_trajRobotPosY = NTHandler.getRobotEntry("traj/trajRobotPosY"); 
+        nte_trajRobotAngle = NTHandler.getRobotEntry("traj/trajRobotAngle"); 
+
+        nte_trajDesiredPosX = NTHandler.getRobotEntry("traj/trajDesiredPosX"); 
+        nte_trajDesiredPosY = NTHandler.getRobotEntry("traj/trajDesiredPosY"); 
+        nte_trajDesiredAngle = NTHandler.getRobotEntry("traj/trajDesiredAngle"); 
+
+        nte_trajTotalTime = NTHandler.getRobotEntry("traj/trajTotalTime"); 
+        nte_trajCurrentTime = NTHandler.getRobotEntry("traj/trajCurrentTime"); 
+
+
         //JAS added debug
-        HAL.sendConsoleLine("DriveUtil.startTrajectory called - "+
+        DriverStation.reportWarning(
+            "DriveUtil.startTrajectory called - "+
             "gyro="+Double.toString(trajInitialGyro)+
             ", left="+Double.toString(trajInitialLeft)+
             ", right="+Double.toString(trajInitialRight)+
-            ", time="+Long.toString(pathStartTime) );
+            ", time="+Long.toString(pathStartTime), false );
+
+        //HAL.sendConsoleLine("DriveUtil.startTrajectory called - "+
+        //    "gyro="+Double.toString(trajInitialGyro)+
+        //    ", left="+Double.toString(trajInitialLeft)+
+        //    ", right="+Double.toString(trajInitialRight)+
+        //    ", time="+Long.toString(pathStartTime) );
     }
 }
