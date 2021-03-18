@@ -27,7 +27,7 @@ import frc.robot.hailfire.Vision;
 public class DriveTrain extends StandardDriveTrain {
 
     private boolean reverseControl = false;
-    public final ADIS16448_IMU gyro = new ADIS16448_IMU();
+    public final ADIS16448_IMU gyro = new ADIS16448_IMU( );
 
     private static final double LOW_MAX_SPEED = 5.5;
 
@@ -70,6 +70,10 @@ public class DriveTrain extends StandardDriveTrain {
                         MotorConfig.DriveTrain.LOW_CONFIG
                 ),
                 10, 19, LOW_MAX_SPEED);
+
+        //--------calibrate the gyro....
+        gyro.configCalTime(10);     //seconds
+        gyro.calibrate();   //
     }
     
     private PosControl posControl;
