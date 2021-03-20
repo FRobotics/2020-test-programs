@@ -104,6 +104,7 @@ public class StandardDriveTrain extends Subsystem {
         return Math.max(Math.min(percent, 1), -1);
     }
 
+    //JAS added sensor local value storage
     private double sensorRightDistanceFt = 0.0d;
     private double sensorRightVelocityFps = 0.0d;
     private double sensorRightVelocityRaw = 0.0d;
@@ -112,8 +113,10 @@ public class StandardDriveTrain extends Subsystem {
     private double sensorLeftVelocityFps = 0.0d;
     private double sensorLeftVelocityRaw = 0.0d;
     private double sensorLeftOutputPct = 0.0d;
+    private int sensorStdAcquireCalled = 0;
 
 
+    //JAS added common sensor acquire routine
     @Override
     public void acquire() {
         // --------read right drive motor
@@ -126,6 +129,9 @@ public class StandardDriveTrain extends Subsystem {
         sensorLeftVelocityFps = leftMotor.getVelocity();
         sensorLeftVelocityRaw = leftMotor.getVelocityRaw();
         sensorLeftOutputPct = leftMotor.getOutputPercent();
+        // --------debug to ensure this routine is called.
+        sensorStdAcquireCalled = (sensorStdAcquireCalled+1) % 2048;
+
     }
 
 
@@ -154,7 +160,10 @@ public class StandardDriveTrain extends Subsystem {
                 Map.entry("right/received/velocity", this::getRightVelocityRaw), //rightMotor::getVelocityRaw),
                 Map.entry("right/received/outputPercent", this::getRightOutputPct), //rightMotor::getOutputPercent),
 
-                Map.entry("closedLoopControl", () -> useClosedLoop)
+                Map.entry("closedLoopControl", () -> useClosedLoop),
+
+                Map.entry("acquireStdCalled", this::getStdAcquireCalled)
+
         );
     }
 
@@ -261,5 +270,10 @@ public class StandardDriveTrain extends Subsystem {
     public void resetDistance() {
         this.leftMotor.resetDistance();
         this.rightMotor.resetDistance();
+    }
+
+    //JAS added
+    public double getStdAcquireCalled() {
+        return (double)sensorStdAcquireCalled;
     }
 }

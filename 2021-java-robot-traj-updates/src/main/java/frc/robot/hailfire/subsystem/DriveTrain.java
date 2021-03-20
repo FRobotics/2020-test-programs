@@ -13,6 +13,8 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 //import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import frc.robot.base.subsystem.StandardDriveTrain;
+//JAS uncomment if using alt gyro code.
+//import frc.robot.base.util.ALT_ADIS16448_IMU;
 import frc.robot.base.util.DriveUtil;
 import frc.robot.base.util.PosControl;
 import frc.robot.base.util.Util;
@@ -23,11 +25,14 @@ import frc.robot.base.device.DoubleSolenoid4150;
 import frc.robot.base.device.Pixy;
 import frc.robot.hailfire.MotorConfig;
 import frc.robot.hailfire.Vision;
+import edu.wpi.first.wpilibj.SPI;
 
 public class DriveTrain extends StandardDriveTrain {
 
     private boolean reverseControl = false;
-    public final ADIS16448_IMU gyro = new ADIS16448_IMU( );
+    private static ADIS16448_IMU gyro; //JAS moved init, removed final, made static = new ADIS16448_IMU( );
+    //JAS switch definition if using alt Gyro code.
+    //private static ALT_ADIS16448_IMU gyro; //JAS moved init, removed final, made static = new ADIS16448_IMU( );
 
     private static final double LOW_MAX_SPEED = 5.5;
 
@@ -71,22 +76,37 @@ public class DriveTrain extends StandardDriveTrain {
                 ),
                 10, 19, LOW_MAX_SPEED);
 
+        //JAS moved gyro init to constructor.  Used different call to set longer cal time.
         //--------calibrate the gyro....
-        gyro.configCalTime(10);     //seconds
-        gyro.calibrate();   //
+        //                        yaw axis, port, cal time
+        gyro = new ADIS16448_IMU( ADIS16448_IMU.IMUAxis.kZ, SPI.Port.kMXP, 8 ); // 8 second cal time
+        //ALT gyro with potentially more accurate cal routine.
+        //gyro = new ALT_ADIS16448_IMU( ADIS16448_IMU.IMUAxis.kZ, SPI.Port.kMXP, 8 ); // 8 second cal time
     }
     
     private PosControl posControl;
     private double angleX = 0;
 
+    //JAS added local storage for sensor data
     private double sensorGyroAngle = 0.0d;
+    private double sensorGyroAngleX = 0.0d;
+    private double sensorGyroAngleY = 0.0d;
+    private double sensorGyroAngleZ = 0.0d;
+    private double sensorGyroTemp = 0.0d;
+    private int sensorAcquireCalled = 0;
 
+    //JAS added common sensor acquire routine
     @Override
     public void acquire() {
         // --------read gyro
         sensorGyroAngle = gyro.getAngle();
+        sensorGyroAngleX = gyro.getGyroAngleX();
+        sensorGyroAngleY = gyro.getGyroAngleY();
+        sensorGyroAngleZ = gyro.getGyroAngleZ();
+        sensorGyroTemp = gyro.getTemperature() * 1.8d + 32.0d;
         // --------read sensors from base class.
         super.acquire();
+        sensorAcquireCalled = (sensorAcquireCalled+1) % 2048;
     }
 
     @Override
@@ -173,6 +193,26 @@ public class DriveTrain extends StandardDriveTrain {
     public double getGyroAngle() {
         return sensorGyroAngle;
     }
+    //JAS added
+    public double getGyroAngleX() {
+        return sensorGyroAngleX;
+    }
+    //JAS added
+    public double getGyroAngleY() {
+        return sensorGyroAngleY;
+    }
+    //JAS added
+    public double getGyroAngleZ() {
+        return sensorGyroAngleZ;
+    }
+    //JAS added
+    public double getGyroTemp() {
+        return sensorGyroTemp;
+    }
+    //JAS added
+    public double getAcquireCalled() {
+        return (double)sensorAcquireCalled;
+    }
 
     PosControl aimPosControl = new PosControl(0, 1, 0.5, 0.2, 0.5);;
 
@@ -202,7 +242,12 @@ public class DriveTrain extends StandardDriveTrain {
         sets.putAll(super.NTSets());
         sets.putAll(Map.of(
             "pixyReading", pixy::read,
-            "gyroAngle", this::getGyroAngle
+            "gyroAngle", this::getGyroAngle,
+            "gyroAngleX", this::getGyroAngleX,
+            "gyroAngleY", this::getGyroAngleY,
+            "gyroAngleZ", this::getGyroAngleZ,
+            "gyroTemp", this::getGyroTemp,
+            "acquireCalled", this::getAcquireCalled
         ));
         return sets;
     }
